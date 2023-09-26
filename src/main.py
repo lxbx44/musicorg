@@ -3,7 +3,7 @@
 import sys
 import os
 import subprocess
-import exiftool
+import shutil
 
 #
 #  DEPENDENCIES:
@@ -34,25 +34,6 @@ def get_valid_folder_name():
             print("Invalid folder name. Please avoid using '/' and '\\'.")
 
 
-def get_artists(n):
-    artists = []
-
-    files = os.listdir(n)
-
-    for song in files:
-        song_path = os.path.join(n, song)
-
-        with exiftool.ExifTool() as et:
-            metadata = et.execute("-Artist", song_path)
-
-        if 'Artist' in metadata[0]:
-            artists.append(metadata[0]['Artist'])
-        else:
-            pass
-
-    return artists
-
-
 def main():
     if len(sys.argv) != 3 or \
             not sys.argv[1].startswith('https://open.spotify.com/playlist/'):
@@ -81,9 +62,23 @@ def main():
 
     print('Music downloaded succesfully')
 
-    artists = get_artists(temp_directory)
+    for song in os.listdir(temp_directory):
+        artist = song.split(' -')[0].replace(' ', '_')
 
-    print(artists)
+        artist_path = os.path.join(target_directory, artist)
+
+        if not os.path.exists(artist_path):
+            os.makedirs(artist_path)
+
+        source_file = os.path.join(temp_directory, song)
+        destination_file = os.path.join(artist_path, song)
+
+        shutil.move(source_file, destination_file)
+
+    shutil.rmtree(temp_directory)
+
+    os.system('clear')
+    print('Program finished succesfully')
 
 
 if __name__ == "__main__":
