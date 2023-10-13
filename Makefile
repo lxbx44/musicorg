@@ -8,3 +8,8 @@ install:
 
 uninstall:
 	sudo rm -f $(BINPATH)/morg
+
+run:
+	pip install spotdl
+	spotdl --download-ffmpeg
+	python3 src/main.py
